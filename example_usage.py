@@ -26,11 +26,13 @@ def example_usage():
         parser = PDFRequirementsParser("sample.pdf")
         requirements, comments = parser.parse()
         parser.save_to_json("./example_output")
+        parser.save_to_markdown("./example_output")
 
         print("\n✓ Successfully parsed PDF")
         print(f"   Pages processed: {len(requirements)}")
         print(f"   Total requirements: {sum(len(r) for r in requirements.values())}")
         print(f"   Total comments: {sum(len(c) for c in comments.values())}")
+        print(f"   Output: JSON files + Markdown document")
 
     except FileNotFoundError:
         print("ℹ  Note: Place a 'sample.pdf' in the current directory to run this example")

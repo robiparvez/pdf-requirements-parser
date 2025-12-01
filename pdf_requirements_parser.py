@@ -490,6 +490,88 @@ class PDFRequirementsParser:
         print(f"   Total requirements: {total_requirements}")
         print(f"   Total comments: {total_comments}")
 
+    def save_to_markdown(self, output_dir: str):
+        """
+        Save requirements and comments to a formatted Markdown file.
+
+        Args:
+            output_dir: Directory to save the output file
+        """
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        markdown_file = output_path / "parsed_document.md"
+
+        with open(markdown_file, 'w', encoding='utf-8') as f:
+            # Write header
+            f.write(f"# PDF Requirements Document\n\n")
+            f.write(f"**Source:** {self.pdf_path.name}\n\n")
+            f.write(f"**Total Pages:** {len(self.requirements)}\n\n")
+            f.write("---\n\n")
+
+            # Write requirements by page
+            f.write("## Requirements\n\n")
+
+            for page_key in sorted(self.requirements.keys(), key=lambda x: int(x.split('_')[1])):
+                page_num = page_key.split('_')[1]
+                reqs = self.requirements[page_key]
+
+                if not reqs:
+                    continue
+
+                f.write(f"### Page {page_num}\n\n")
+
+                for req in reqs:
+                    req_type = req['type'].replace('_', ' ').title()
+                    f.write(f"**[{req_type} {req['id']}]**\n\n")
+
+                    # Format text based on type
+                    text = req['text']
+
+                    if req['type'] == 'list_item':
+                        # Ensure list items are properly formatted
+                        lines = text.split('\n')
+                        for line in lines:
+                            if line.strip():
+                                if not line.strip().startswith(('•', '-', '*', 'o ')):
+                                    f.write(f"- {line.strip()}\n")
+                                else:
+                                    f.write(f"{line.strip()}\n")
+                    elif req['type'] == 'heading':
+                        f.write(f"**{text}**\n")
+                    elif req['type'] == 'table' or req['type'] == 'field_list':
+                        # Keep table formatting as code block
+                        f.write(f"```text\n{text}\n```\n")
+                    else:
+                        # Regular paragraph
+                        f.write(f"{text}\n")
+
+                    f.write("\n")
+
+                f.write("---\n\n")
+
+            # Write comments by page
+            total_comments = sum(len(cmts) for cmts in self.comments.values())
+            if total_comments > 0:
+                f.write("## Comments & Annotations\n\n")
+
+                for page_key in sorted(self.comments.keys(), key=lambda x: int(x.split('_')[1])):
+                    page_num = page_key.split('_')[1]
+                    comments = self.comments[page_key]
+
+                    if not comments:
+                        continue
+
+                    f.write(f"### Page {page_num} Comments\n\n")
+
+                    for comment in comments:
+                        f.write(f"**[{comment['author']}]** ({comment['type']})\n\n")
+                        f.write(f"> {comment['text']}\n\n")
+
+                    f.write("---\n\n")
+
+        print(f"✓ Markdown saved to: {markdown_file}")
+
 
 def main():
     """
@@ -505,7 +587,7 @@ Examples:
 
 Notes:
   - Tesseract OCR must be installed for scanned PDF support
-  - Output generates two files: requirements.json and comments.json
+  - Output generates: requirements.json, comments.json, and parsed_document.md
         """
     )
 
@@ -530,6 +612,7 @@ Notes:
 
         # Save results
         pdf_parser.save_to_json(args.output_dir)
+        pdf_parser.save_to_markdown(args.output_dir)
 
         print("\n✅ Processing complete!")
         return 0

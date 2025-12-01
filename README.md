@@ -8,9 +8,10 @@ A standalone Python script that intelligently separates PDF content into main re
 - 📝 **Content Separation**: Cleanly separates requirements from annotations
 - 🎯 **Annotation Extraction**: Captures author, type, content, and metadata
 - 🖼️ **OCR Pipeline**: Converts scanned pages to text using Tesseract
-- 📊 **Structured Output**: Generates organized JSON files for easy processing
+- 📊 **Structured Output**: Generates organized JSON files and formatted Markdown
 - ⚡ **Efficient Processing**: Page-by-page processing for large documents
 - 🎨 **Content Classification**: Identifies headings, lists, tables, and paragraphs
+- 📄 **Markdown Export**: Creates human-readable markdown documents with proper formatting
 
 ## Prerequisites
 
@@ -78,7 +79,7 @@ uv run python pdf_requirements_parser.py --input scanned_doc.pdf --output-dir ./
 
 ## Output Format
 
-The script generates two JSON files:
+The script generates three output files:
 
 ### 1. requirements.json
 
@@ -129,6 +130,43 @@ Contains all annotations with metadata:
   ],
   "page_2": [...]
 }
+```
+
+### 3. parsed_document.md
+
+Human-readable Markdown document with formatted requirements and comments:
+
+```markdown
+# PDF Requirements Document
+
+**Source:** document.pdf
+**Total Pages:** 7
+
+---
+
+## Requirements
+
+### Page 1
+
+**[Heading 1]**
+
+**SYSTEM REQUIREMENTS**
+
+**[Paragraph 2]**
+
+The system shall provide user authentication...
+
+---
+
+## Comments & Annotations
+
+### Page 1 Comments
+
+**[John Doe]** (Highlight)
+
+> This requirement needs clarification
+
+---
 ```
 
 ## Content Classification
